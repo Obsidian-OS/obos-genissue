@@ -5,4 +5,4 @@ Before=getty.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/gen-issue
+ExecStart=/usr/bin/obos-genissue
