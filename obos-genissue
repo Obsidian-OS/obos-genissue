@@ -1,9 +1,86 @@
-#!/bin/sh
-{
-  echo "Obsidian GNU/Linux"
-  echo "Hostname: $(hostname) running kernel $(uname -r) for $(uname -m)"
-  echo "$(uname -sr)"
-  echo "It is currently $(date '+%Y-%m-%d %H:%M:%S') and you are on \\l"
-  echo
-  echo "Current slot: $(findmnt -n -o SOURCE,UUID,PARTUUID,LABEL,PARTLABEL / 2>/dev/null | awk '{if($0 ~ /_a/) {print "a"; exit} else if($0 ~ /_b/) {print "b"; exit} else {print "unknown"}}')"
-} > /run/issue
+#!/bin/bash
+CYAN='\033[0;36m'
+BLUE='\033[0;34m'
+MAGENTA='\033[0;35m'
+WHITE='\033[0;37m'
+BOLD='\033[1m'
+RESET='\033[0m'
+get_slot() {
+    findmnt -n -o SOURCE,UUID,PARTUUID,LABEL,PARTLABEL / 2>/dev/null | awk '{
+        if($0 ~ /_a/) {print "a"; exit}
+        else if($0 ~ /_b/) {print "b"; exit}
+        else {print "unknown"}
+    }'
+}
+
+get_uptime() {
+    if [[ -r /proc/uptime ]]; then
+        s=$(< /proc/uptime)
+        s=${s/.*}
+        d=$((s / 60 / 60 / 24))
+        h=$((s / 60 / 60 % 24))
+        m=$((s / 60 % 60))
+        [[ $d -gt 0 ]] && uptime="${d}d "
+        [[ $h -gt 0 ]] && uptime+="${h}h "
+        [[ $m -gt 0 ]] && uptime+="${m}m"
+        echo "${uptime:-0m}"
+    fi
+}
+
+get_memory() {
+    while IFS=: read -r key val _; do
+        case $key in
+            MemTotal) mem_total=$((${val/kB} / 1024)) ;;
+            MemAvailable) mem_available=$((${val/kB} / 1024)) ;;
+        esac
+    done < /proc/meminfo
+    mem_used=$((mem_total - mem_available))
+    echo "${mem_used}MB / ${mem_total}MB"
+}
+
+get_packages() {
+    if command -v pacman >/dev/null 2>&1; then
+        pacman -Qq 2>/dev/null | wc -l
+    else
+        echo "unknown"
+    fi
+}
+
+main() {
+    {
+        logo_lines=(
+            "${CYAN} *+++%${RESET}          "
+            "${CYAN}****##%${RESET}         "
+            "${CYAN}#***#${BLUE}@ @${RESET}        "
+            " ${BLUE}@     @  @${RESET}     "
+            "   ${BLUE}@    @  @${RESET}    "
+            "    ${BLUE}@ ${MAGENTA}#****#${RESET}    "
+            "     ${MAGENTA}@ ######${RESET}   "
+            "        ${MAGENTA}###%${RESET}    "
+        )
+
+        info_lines=(
+            "${BOLD}${BLUE}$(whoami)${RESET}@${BOLD}${BLUE}$(hostname)${RESET}"
+            "${CYAN}OS:${RESET} Obsidian GNU/Linux"
+            "${CYAN}Kernel:${RESET} $(uname -sr)"
+            "${CYAN}Arch:${RESET} $(uname -m)"
+            "${CYAN}Uptime:${RESET} $(get_uptime)"
+            "${CYAN}Packages:${RESET} $(get_packages)"
+            "${CYAN}Memory:${RESET} $(get_memory)"
+            "${CYAN}Date:${RESET} $(date '+%Y-%m-%d %H:%M:%S')"
+            "${CYAN}Slot:${RESET} $(get_slot)"
+            "${CYAN}TTY:${RESET} $(tty)"
+        )
+
+        max_lines=$((${#logo_lines[@]} > ${#info_lines[@]} ? ${#logo_lines[@]} : ${#info_lines[@]}))
+        for ((i=0; i<max_lines; i++)); do
+            logo_part="${logo_lines[$i]:-$(printf '%16s' '')}"
+            info_part="${info_lines[$i]:-}"
+            echo -e "${logo_part}  ${info_part}"
+        done
+
+        echo
+    } | tee /run/issue >/dev/null
+}
+
+main
