@@ -20,5 +20,6 @@ package() {
   cd "$srcdir/obos-genissue"
   install -Dm755 obos-genissue "$pkgdir/usr/bin/obos-genissue"
   install -Dm644 obos-genissue.timer "$pkgdir/usr/lib/systemd/system/obos-genissue.timer"
+  install -Dm644 obos-genissue.service "$pkgdir/usr/lib/systemd/system/obos-genissue.service"
   install -Dm644 issue.conf "$pkgdir/etc/systemd/system/getty@.service.d/issue.conf"
 }
