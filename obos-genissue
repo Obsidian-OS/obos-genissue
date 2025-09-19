@@ -1,8 +1,9 @@
 #!/bin/sh
 {
-  echo "You are on $(hostname) running kernel $(uname -r) for $(uname -m)"
-  echo "It is currently $(date '+%Y-%m-%d %H:%M:%S') and you are on tty \\l"
-  echo "Thanks for using ObsidianOS!"
+  echo "Obsidian GNU/Linux"
+  echo "Hostname: $(hostname) running kernel $(uname -r) for $(uname -m)"
+  echo "$(uname -sr)"
+  echo "It is currently $(date '+%Y-%m-%d %H:%M:%S') and you are on \\l"
   echo
-  obsidianctl status 2>/dev/null || echo "(obsidianctl not available)"
+  echo "Current slot: $(findmnt -n -o SOURCE,UUID,PARTUUID,LABEL,PARTLABEL / 2>/dev/null | awk '{if($0 ~ /_a/) {print "a"; exit} else if($0 ~ /_b/) {print "b"; exit} else {print "unknown"}}')"
 } > /run/issue
