@@ -4,7 +4,7 @@ Description=Refresh /run/issue every 5 minutes
 [Timer]
 OnBootSec=30s
 OnUnitActiveSec=5min
-Unit=gen-issue.service
+Unit=obos-genissue.service
 
 [Install]
 WantedBy=timers.target
