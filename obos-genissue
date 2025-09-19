@@ -69,7 +69,7 @@ main() {
             "${CYAN}Memory:${RESET} $(get_memory)"
             "${CYAN}Date:${RESET} $(date '+%Y-%m-%d %H:%M:%S')"
             "${CYAN}Slot:${RESET} $(get_slot)"
-            "${CYAN}TTY:${RESET} $(tty)"
+            "${CYAN}TTY:${RESET} \\l"
         )
 
         max_lines=$((${#logo_lines[@]} > ${#info_lines[@]} ? ${#logo_lines[@]} : ${#info_lines[@]}))
