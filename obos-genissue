@@ -79,6 +79,7 @@ main() {
             echo -e "${logo_part}  ${info_part}"
         done
 
+
         echo
     } | tee /run/issue >/dev/null
 }

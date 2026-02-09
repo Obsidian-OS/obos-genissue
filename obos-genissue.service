@@ -1,7 +1,5 @@
 [Unit]
 Description=Generate dynamic /run/issue
-DefaultDependencies=no
-Before=getty.target
 
 [Service]
 Type=oneshot
